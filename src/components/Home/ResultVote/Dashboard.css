@@ -1,0 +1,327 @@
+
+/* Dashboard.css */
+.dashboard {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  padding: 20px;
+  color: #333;
+}
+
+.dashboard-header {
+  margin-bottom: 30px;
+}
+
+.dashboard-header h1 {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #2d3748;
+}
+
+.dashboard-header p {
+  font-size: 16px;
+  color: #718096;
+  margin: 0;
+}
+
+.dashboard-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 25px;
+}
+
+.dashboard-section {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  padding: 24px;
+  transition: transform 0.3s ease;
+}
+
+.dashboard-section:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+}
+
+.dashboard-section h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #2d3748;
+}
+
+/* Profile Section */
+.profile-section {
+  grid-column: 1 / -1;
+}
+
+.profile-info {
+  margin-bottom: 25px;
+}
+
+.profile-name {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 5px;
+  color: #2d3748;
+}
+
+.profile-title {
+  font-size: 16px;
+  color: #718096;
+}
+
+.stats-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.stat-card {
+  background-color: #f7fafc;
+  border-radius: 10px;
+  padding: 18px;
+  text-align: center;
+  border-left: 4px solid #4299e1;
+}
+
+.stat-card:nth-child(2) {
+  border-left-color: #48bb78;
+}
+
+.stat-card:nth-child(3) {
+  border-left-color: #9f7aea;
+}
+
+.stat-title {
+  font-size: 14px;
+  color: #718096;
+  margin-bottom: 8px;
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 5px;
+  color: #2d3748;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: #718096;
+}
+
+/* Focusing Section */
+.focusing-section {
+  grid-column: span 2;
+}
+
+.section-subtitle {
+  font-size: 14px;
+  color: #718096;
+  margin-bottom: 20px;
+}
+
+.focusing-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 30px;
+  height: 200px;
+  padding: 0 20px;
+}
+
+.chart-bar {
+  background: linear-gradient(to top, #4299e1, #63b3ed);
+  border-radius: 8px 8px 0 0;
+  width: 80px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.bar-label {
+  position: absolute;
+  top: -25px;
+  font-size: 14px;
+  color: #4a5568;
+  text-align: center;
+  width: 100%;
+}
+
+.month-label {
+  font-size: 12px;
+  color: #718096;
+  margin-bottom: 8px;
+}
+
+/* Meetings Section */
+.meetings-section {
+  grid-column: span 2;
+}
+
+.meeting-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.meeting-item {
+  display: grid;
+  grid-template-columns: 100px 100px 1fr auto;
+  gap: 15px;
+  align-items: center;
+  padding: 15px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.meeting-item:last-child {
+  border-bottom: none;
+}
+
+.meeting-date {
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.meeting-time {
+  color: #718096;
+}
+
+.meeting-title {
+  font-weight: 500;
+  color: #2d3748;
+}
+
+.meeting-platform {
+  background-color: #ebf8ff;
+  color: #3182ce;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.see-all {
+  margin-top: 20px;
+  text-align: right;
+  color: #4299e1;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.see-all:hover {
+  text-decoration: underline;
+}
+
+/* Range Section */
+.range-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.week-label {
+  font-size: 14px;
+  color: #718096;
+}
+
+.range-status {
+  font-size: 18px;
+  font-weight: 600;
+  color: #e53e3e;
+  margin-bottom: 15px;
+}
+
+.range-progress {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 10px;
+}
+
+.progress-bar {
+  flex-grow: 1;
+  height: 8px;
+  background-color: #e2e8f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #48bb78;
+  border-radius: 4px;
+}
+
+.progress-value {
+  font-size: 18px;
+  font-weight: 600;
+  color: #48bb78;
+}
+
+.progress-label {
+  font-size: 14px;
+  color: #718096;
+}
+
+/* Developed Areas Section */
+.areas-section {
+  grid-column: span 1;
+}
+
+.skills-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.skill-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.skill-name {
+  font-size: 15px;
+  color: #2d3748;
+}
+
+.skill-progress {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.skill-value {
+  font-size: 15px;
+  font-weight: 600;
+  color: #4299e1;
+  min-width: 40px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .dashboard-content {
+    grid-template-columns: 1fr;
+  }
+  
+  .focusing-section,
+  .meetings-section {
+    grid-column: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .meeting-item {
+    grid-template-columns: 1fr;
+    gap: 5px;
+  }
+  
+  .stats-container {
+    grid-template-columns: 1fr;
+  }
+}

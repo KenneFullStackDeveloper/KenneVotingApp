@@ -1,0 +1,88 @@
+/* Container for the entire dropdown */
+.admin-dropdown-container {
+  position: relative; /* Essential for positioning the dropdown menu */
+  display: inline-block; /* Allows it to sit nicely with other inline elements */
+  font-family: Arial, sans-serif;
+}
+
+/* Button to toggle the dropdown */
+.dropdown-toggle-button {
+  background-color: #007bff; /* Blue button */
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex; /* To align text and arrow */
+  align-items: center;
+  gap: 8px; /* Space between text and arrow */
+  transition: background-color 0.3s ease;
+}
+
+.dropdown-toggle-button:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
+
+/* Arrow icon */
+.arrow {
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  display: inline-block;
+  padding: 3px;
+  transition: transform 0.3s ease;
+}
+
+.arrow.down {
+  transform: rotate(45deg);
+}
+
+.arrow.up {
+  transform: rotate(-135deg);
+}
+
+/* Dropdown menu list */
+.dropdown-menu {
+  position: absolute; /* Positioned relative to .admin-dropdown-container */
+  top: 100%; /* Place it right below the button */
+  left: 0;
+  background-color: white;
+  min-width: 220px; /* Adjust as needed */
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 100; /* Ensure it appears above other content */
+  list-style-type: none; /* Remove bullet points */
+  padding: 0;
+  margin: 5px 0 0 0; /* Small margin from the button */
+  border-radius: 5px;
+  overflow: hidden; /* Ensures rounded corners are visible */
+}
+
+/* Individual dropdown items */
+.dropdown-item {
+  color: #333;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.dropdown-item:hover {
+  background-color: #f1f1f1;
+  color: #007bff; /* Blue text on hover */
+}
+
+/* --- Basic Responsiveness (Optional, but good practice) --- */
+@media (max-width: 600px) {
+  .dropdown-menu {
+    min-width: unset; /* Remove min-width on small screens */
+    width: 100%; /* Take full width of parent on small screens */
+    left: 0;
+    right: 0; /* Ensure it stretches */
+  }
+
+  .dropdown-toggle-button {
+    width: 100%; /* Button also takes full width */
+    justify-content: center; /* Center content in button */
+  }
+}
