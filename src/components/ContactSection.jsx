@@ -106,7 +106,9 @@ const ContactSection = () => {
                 </label>
                 <input
                   id="prenom"
-                  {...register("prenom", { required: "Le prénom est obligatoire" })}
+                  {...register("prenom", { required: "Le prénom est obligatoire",
+                    validate: value => value.trim() !== "" || "Le prénom ne peut pas être vide"
+                   })}
                   placeholder="Max"
                   aria-invalid={!!errors.prenom}
                   className={`w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 transition ${
@@ -129,7 +131,9 @@ const ContactSection = () => {
                 </label>
                 <input
                   id="nom"
-                  {...register("nom", { required: "Le nom est obligatoire" })}
+                  {...register("nom", { required: "Le nom est obligatoire",
+                    validate: value => value.trim() !== "" || "Le nom ne peut pas être vide"
+                   })}
                   placeholder="Müller"
                   aria-invalid={!!errors.nom}
                   className={`w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 transition ${
@@ -232,7 +236,8 @@ const ContactSection = () => {
                   minLength: {
                     value: 5,
                     message: "Le sujet doit contenir au moins 5 caractères"
-                  }
+                  },
+                  validate : value => value.trim() !== "" || "Le sujet ne peut pas être vide",
                 })}
                 placeholder="Objet de votre message"
                 aria-invalid={!!errors.sujet}
@@ -258,6 +263,7 @@ const ContactSection = () => {
                 id="message"
                 {...register("message", { 
                   required: "Le message est obligatoire",
+                  validate : value => value.trim() !== "" || "Le message ne peut pas être vide",
                   minLength: {
                     value: 20,
                     message: "Le message doit contenir au moins 20 caractères"

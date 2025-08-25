@@ -1,26 +1,30 @@
-import React, { useRef, useEffect } from "react";
-import { FaPrint, FaArrowUp } from "react-icons/fa";
+import React, { useRef, useEffect, useState } from "react";
+import { FaPrint, FaArrowUp, FaLock, FaEnvelope, FaPhone } from "react-icons/fa";
 import { Link } from "react-router-dom";
-import { FiLock } from "react-icons/fi";
+import { FiArrowLeft, FiCheckCircle } from "react-icons/fi";
 
 export default function ConditionsUtilisation() {
   const headerRef = useRef(null);
   const backToTopButtonRef = useRef(null);
-  const contentRef = useRef(null);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
+      const scrollY = window.scrollY;
+      setIsScrolled(scrollY > 50);
+      
       const button = backToTopButtonRef.current;
       if (button) {
-        button.style.display = window.scrollY > 300 ? "block" : "none";
+        button.style.display = scrollY > 300 ? "block" : "none";
       }
     };
+    
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const scrollTo = (ref) => {
-    ref.current?.scrollIntoView({ behavior: "smooth" });
+  const handleBackToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handlePrint = () => {
@@ -67,6 +71,9 @@ export default function ConditionsUtilisation() {
         .text-blue-600 {
           color: #000 !important;
         }
+        .bg-gray-100 {
+          background-color: #f7f7f7 !important;
+        }
       }
     `;
     document.head.appendChild(printStyles);
@@ -76,27 +83,41 @@ export default function ConditionsUtilisation() {
     }, 1000);
   };
 
-  const handleBackToTop = () => scrollTo(headerRef);
+  // Fonction pour naviguer vers une section
+  const scrollToSection = (sectionId) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      const offsetTop = element.offsetTop - 80; // Adjust for header height
+      window.scrollTo({ top: offsetTop, behavior: 'smooth' });
+    }
+  };
 
   return (
-    <div className="min-h-screen flex flex-col bg-white text-gray-800 font-sans">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 to-indigo-50 text-gray-800 font-sans">
       {/* Header - caché lors de l'impression */}
       <header
         ref={headerRef}
-        className="no-print bg-blue-800 text-white flex flex-wrap items-center justify-between px-4 sm:px-6 py-3 shadow-md sticky top-0 z-50 gap-4"
+        className={`no-print flex flex-wrap items-center justify-between px-4 sm:px-6 py-4 shadow-md sticky top-0 z-50 gap-4 transition-all duration-300 ${
+          isScrolled 
+            ? "bg-white text-blue-800 shadow-lg" 
+            : "bg-gradient-to-r from-blue-700 to-purple-700 text-white"
+        }`}
       >
         <div className="flex items-center gap-4">
           <Link
             to="/"
-            className="text-sm hover:underline text-blue-200 whitespace-nowrap"
+            className={`flex items-center gap-2 text-sm hover:underline whitespace-nowrap ${
+              isScrolled ? "text-blue-600" : "text-blue-100"
+            }`}
             aria-label="Retour accueil"
           >
-            ← Retour
+            <FiArrowLeft className="h-4 w-4" />
+            Retour à l'accueil
           </Link>
           <div className="flex items-center">
-            <FiLock className="h-6 w-6 text-blue-300" />
+            <FaLock className={`h-6 w-6 ${isScrolled ? "text-blue-600" : "text-blue-300"}`} />
             <h1 className="ml-2 text-xl md:text-2xl font-bold select-none whitespace-nowrap">
-              Vote<span className="text-blue-300">Secure</span>
+              Vote<span className={isScrolled ? "text-blue-600" : "text-blue-300"}>Secure</span>
             </h1>
           </div>
         </div>
@@ -104,7 +125,11 @@ export default function ConditionsUtilisation() {
         <div className="flex items-center gap-2 sm:gap-4">
           <button
             onClick={handlePrint}
-            className="flex items-center gap-1 sm:gap-2 bg-white text-blue-800 hover:bg-blue-50 px-2 sm:px-3 py-1 sm:py-2 rounded text-xs sm:text-sm font-semibold transition whitespace-nowrap"
+            className={`flex items-center gap-2 px-3 py-2 rounded text-sm font-semibold transition whitespace-nowrap ${
+              isScrolled 
+                ? "bg-blue-100 text-blue-800 hover:bg-blue-200" 
+                : "bg-blue-600 text-white hover:bg-blue-700"
+            }`}
             aria-label="Imprimer"
           >
             <FaPrint className="text-sm" />
@@ -112,36 +137,67 @@ export default function ConditionsUtilisation() {
           </button>
 
           <Link
-            to="/auth"
-            className="bg-blue-600 text-white px-2 sm:px-3 py-1 sm:py-2 rounded text-xs sm:text-sm font-medium hover:bg-blue-700 transition whitespace-nowrap"
+            to="/login"
+            className={`px-3 py-2 rounded text-sm font-medium transition whitespace-nowrap ${
+              isScrolled 
+                ? "bg-blue-600 text-white hover:bg-blue-700" 
+                : "bg-white text-blue-700 hover:bg-blue-50"
+            }`}
           >
             Se connecter
           </Link>
         </div>
       </header>
 
+      {/* Table des matières flottante */}
+      <aside className="no-print hidden lg:block fixed left-8 top-1/2 transform -translate-y-1/2 bg-white p-4 rounded-lg shadow-md z-40">
+        <h3 className="font-semibold text-blue-800 mb-3 text-sm">Table des matières</h3>
+        <ul className="space-y-2 text-xs">
+          {[
+            { id: 'introduction', label: 'Introduction' },
+            { id: 'compte-utilisateur', label: 'Compte Utilisateur' },
+            { id: 'utilisation-service', label: 'Utilisation du Service' },
+            { id: 'abonnement', label: 'Abonnement' },
+            { id: 'securite-donnees', label: 'Sécurité et Données' },
+            { id: 'responsabilite', label: 'Responsabilité' },
+            { id: 'modifications', label: 'Modifications' }
+          ].map((item, index) => (
+            <li key={item.id}>
+              <button 
+                onClick={() => scrollToSection(item.id)}
+                className="text-blue-600 hover:text-blue-800 hover:underline text-left"
+              >
+                {index + 1}. {item.label}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </aside>
+
       {/* Main content - visible à l'impression */}
-      <main 
-        ref={contentRef}
-        className="print-content flex-grow max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-10"
-      >
+      <main className="print-content flex-grow max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
         {/* En-tête pour l'impression */}
         <div className="no-print print-header hidden">
           <h1 className="text-2xl font-bold">Conditions d'Utilisation VoteSecure</h1>
         </div>
 
-        <div className="mb-8 print-section">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-blue-600 mb-2 print:text-black">
+        <div className="mb-8 print-section bg-white rounded-xl p-6 shadow-sm">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 mb-2 print:text-black">
             Conditions d'utilisation
           </h2>
-          <p className="italic text-xs sm:text-sm text-gray-500 print:text-gray-700">
+          <p className="italic text-sm text-gray-500 print:text-gray-700">
             Dernière mise à jour : 10 juillet 2025
           </p>
         </div>
 
         <div className="space-y-8">
           {/* Section Introduction */}
-          <section className="print-section space-y-4 leading-relaxed text-justify">
+          <section id="introduction" className="print-section bg-white rounded-xl p-6 shadow-sm space-y-4 leading-relaxed text-justify">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="h-1 w-8 bg-blue-600 rounded-full"></div>
+              <h3 className="text-xl sm:text-2xl font-semibold text-gray-900">Introduction</h3>
+            </div>
+            
             <p className="text-sm sm:text-base">
               VoteSecure offre une plateforme de vote électronique sécurisée permettant aux organisations d'organiser des élections et consultations en ligne avec un haut niveau de sécurité (« Service VoteSecure »). Le service est accessible via Internet sur différents appareils compatibles (« Appareils Compatibles »).
             </p>
@@ -151,18 +207,27 @@ export default function ConditionsUtilisation() {
           </section>
 
           {/* Section 1 */}
-          <section className="print-section border-t border-gray-200 pt-6 space-y-4">
-            <h3 className="text-xl sm:text-2xl font-semibold text-gray-900">1. Compte Utilisateur</h3>
+          <section id="compte-utilisateur" className="print-section bg-white rounded-xl p-6 shadow-sm space-y-4">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="h-1 w-8 bg-blue-600 rounded-full"></div>
+              <h3 className="text-xl sm:text-2xl font-semibold text-gray-900">1. Compte Utilisateur</h3>
+            </div>
 
             <div className="space-y-3">
-              <h4 className="font-semibold text-base sm:text-lg">1.1 Création de compte</h4>
+              <h4 className="font-semibold text-base sm:text-lg flex items-center gap-2">
+                <FiCheckCircle className="text-blue-500" />
+                1.1 Création de compte
+              </h4>
               <p className="text-sm sm:text-base">
                 Pour utiliser le Service VoteSecure, les organisations doivent créer un compte administrateur en fournissant des informations exactes et à jour. Les administrateurs sont responsables de la confidentialité de leurs identifiants et de toutes les activités sur leur compte.
               </p>
             </div>
 
             <div className="space-y-3">
-              <h4 className="font-semibold text-base sm:text-lg">1.2 Gestion des électeurs</h4>
+              <h4 className="font-semibold text-base sm:text-lg flex items-center gap-2">
+                <FiCheckCircle className="text-blue-500" />
+                1.2 Gestion des électeurs
+              </h4>
               <p className="text-sm sm:text-base">
                 L'organisation est responsable de la gestion de sa liste d'électeurs et doit s'assurer que seules les personnes autorisées ont accès au processus de vote.
               </p>
@@ -170,18 +235,27 @@ export default function ConditionsUtilisation() {
           </section>
 
           {/* Section 2 */}
-          <section className="print-section border-t border-gray-200 pt-6 space-y-4">
-            <h3 className="text-xl sm:text-2xl font-semibold text-gray-900">2. Utilisation du Service</h3>
+          <section id="utilisation-service" className="print-section bg-white rounded-xl p-6 shadow-sm space-y-4">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="h-1 w-8 bg-blue-600 rounded-full"></div>
+              <h3 className="text-xl sm:text-2xl font-semibold text-gray-900">2. Utilisation du Service</h3>
+            </div>
 
             <div className="space-y-3">
-              <h4 className="font-semibold text-base sm:text-lg">2.1 Élections</h4>
+              <h4 className="font-semibold text-base sm:text-lg flex items-center gap-2">
+                <FiCheckCircle className="text-blue-500" />
+                2.1 Élections
+              </h4>
               <p className="text-sm sm:text-base">
                 VoteSecure fournit les outils techniques pour organiser des élections mais n'intervient pas dans les aspects légaux ou réglementaires des scrutins organisés. L'organisation est seule responsable de la conformité de ses élections avec les lois applicables.
               </p>
             </div>
 
             <div className="space-y-3">
-              <h4 className="font-semibold text-base sm:text-lg">2.2 Comportement</h4>
+              <h4 className="font-semibold text-base sm:text-lg flex items-center gap-2">
+                <FiCheckCircle className="text-blue-500" />
+                2.2 Comportement
+              </h4>
               <p className="text-sm sm:text-base">
                 Vous vous engagez à ne pas utiliser le service pour :
               </p>
@@ -195,11 +269,17 @@ export default function ConditionsUtilisation() {
           </section>
 
           {/* Section 3 */}
-          <section className="print-section border-t border-gray-200 pt-6 space-y-4">
-            <h3 className="text-xl sm:text-2xl font-semibold text-gray-900">3. Abonnement</h3>
+          <section id="abonnement" className="print-section bg-white rounded-xl p-6 shadow-sm space-y-4">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="h-1 w-8 bg-blue-600 rounded-full"></div>
+              <h3 className="text-xl sm:text-2xl font-semibold text-gray-900">3. Abonnement</h3>
+            </div>
 
             <div className="space-y-3">
-              <h4 className="font-semibold text-base sm:text-lg">3.1 Fonctionnalités</h4>
+              <h4 className="font-semibold text-base sm:text-lg flex items-center gap-2">
+                <FiCheckCircle className="text-blue-500" />
+                3.1 Fonctionnalités
+              </h4>
               <p className="text-sm sm:text-base">
                 L'abonnement premium offre des fonctionnalités supplémentaires :
               </p>
@@ -213,7 +293,10 @@ export default function ConditionsUtilisation() {
             </div>
 
             <div className="space-y-3">
-              <h4 className="font-semibold text-base sm:text-lg">3.2 Paiement et résiliation</h4>
+              <h4 className="font-semibold text-base sm:text-lg flex items-center gap-2">
+                <FiCheckCircle className="text-blue-500" />
+                3.2 Paiement et résiliation
+              </h4>
               <p className="text-sm sm:text-base">
                 Les abonnements sont facturés mensuellement ou annuellement. Vous pouvez résilier à tout moment, sans remboursement des montants déjà payés. L'accès aux fonctionnalités premium sera maintenu jusqu'à la fin de la période payée.
               </p>
@@ -221,16 +304,22 @@ export default function ConditionsUtilisation() {
           </section>
 
           {/* Section 4 */}
-          <section className="print-section border-t border-gray-200 pt-6 space-y-4">
-            <h3 className="text-xl sm:text-2xl font-semibold text-gray-900">4. Sécurité et Données</h3>
+          <section id="securite-donnees" className="print-section bg-white rounded-xl p-6 shadow-sm space-y-4">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="h-1 w-8 bg-blue-600 rounded-full"></div>
+              <h3 className="text-xl sm:text-2xl font-semibold text-gray-900">4. Sécurité et Données</h3>
+            </div>
             <p className="text-sm sm:text-base">
               Nous mettons en œuvre des mesures de sécurité de haut niveau conformes aux standards industriels. Les données sont chiffrées de bout en bout. Nous collectons et traitons vos données conformément à notre Politique de Confidentialité et au RGPD.
             </p>
           </section>
 
           {/* Section 5 */}
-          <section className="print-section border-t border-gray-200 pt-6 space-y-4">
-            <h3 className="text-xl sm:text-2xl font-semibold text-gray-900">5. Limitations de Responsabilité</h3>
+          <section id="responsabilite" className="print-section bg-white rounded-xl p-6 shadow-sm space-y-4">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="h-1 w-8 bg-blue-600 rounded-full"></div>
+              <h3 className="text-xl sm:text-2xl font-semibold text-gray-900">5. Limitations de Responsabilité</h3>
+            </div>
             <p className="text-sm sm:text-base">
               VoteSecure décline toute responsabilité concernant :
             </p>
@@ -243,24 +332,38 @@ export default function ConditionsUtilisation() {
           </section>
 
           {/* Section 6 */}
-          <section className="print-section border-t border-gray-200 pt-6 space-y-4">
-            <h3 className="text-xl sm:text-2xl font-semibold text-gray-900">6. Modifications</h3>
+          <section id="modifications" className="print-section bg-white rounded-xl p-6 shadow-sm space-y-4">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="h-1 w-8 bg-blue-600 rounded-full"></div>
+              <h3 className="text-xl sm:text-2xl font-semibold text-gray-900">6. Modifications</h3>
+            </div>
             <p className="text-sm sm:text-base">
               Nous nous réservons le droit de modifier ces conditions. Les utilisateurs seront informés des changements majeurs par email ou via une notification dans l'interface.
             </p>
           </section>
 
           {/* Infos légales */}
-          <div className="print-section text-xs sm:text-sm text-gray-500 border-t pt-6 mt-6 space-y-2 print:text-black">
+          <div className="print-section bg-white rounded-xl p-6 shadow-sm text-sm border-t pt-6 mt-6 space-y-4 print:text-black">
+            <h3 className="font-semibold text-lg text-blue-800">Informations légales</h3>
             <p>VoteSecure est une société enregistrée en France, dont le siège social est situé à Paris.</p>
-            <p>
-              Pour toute question concernant ces Conditions d'utilisation, veuillez nous contacter :
-              <br />
-              Téléphone : <a href="tel:+33123456789" className="text-blue-600 hover:underline print:text-black">+33 1 23 45 67 89</a>
-              <br />
-              Email : <a href="mailto:contact@votesecure.com" className="text-blue-600 hover:underline print:text-black">contact@votesecure.com</a>
-            </p>
-            <p className="mt-2">
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              <div className="flex items-center gap-3">
+                <FaPhone className="text-blue-600" />
+                <a href="tel:+33123456789" className="text-blue-600 hover:underline print:text-black">
+                  +33 1 23 45 67 89
+                </a>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <FaEnvelope className="text-blue-600" />
+                <a href="mailto:contact@votesecure.com" className="text-blue-600 hover:underline print:text-black">
+                  contact@votesecure.com
+                </a>
+              </div>
+            </div>
+            
+            <p className="mt-4 border-t pt-4">
               Ces conditions sont régies par le droit français. Tout litige relatif à leur interprétation ou exécution sera de la compétence exclusive des tribunaux français.
             </p>
           </div>
@@ -272,11 +375,10 @@ export default function ConditionsUtilisation() {
         ref={backToTopButtonRef}
         onClick={handleBackToTop}
         title="Retour en haut"
-        className="no-print fixed bottom-5 right-5 bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-md text-sm hidden z-50 transition"
+        className="no-print fixed bottom-5 right-5 bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-md text-sm hidden z-50 transition transform hover:scale-110"
       >
         <FaArrowUp />
       </button>
-
     </div>
   );
 }
