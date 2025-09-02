@@ -17,7 +17,7 @@ export default function Layout() {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Afficher le header seulement si le path n'est pas dans hideHeaderPaths */}
-      {!hideHeaderPaths.includes(location.pathname) && <Header />}
+      {!hideHeaderPaths.includes(location.pathname) && <Header  />}
       
       
       <main className="flex-grow">

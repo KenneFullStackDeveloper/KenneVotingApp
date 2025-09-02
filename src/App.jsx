@@ -1,17 +1,18 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Layout from './components/Layout';
-import Sign from './components/Home/Sign';
+import LandingPage from './components/Home/LandingPage';
 import VotingApp from "./components/Home/VotingApp";
 import ResultVote from "./components/Home/ResultVote";
 import VotingTest from "./components/Home/VotingTest";
-import Election from './components/Home/CreateElection';
 import ContactSection from './components/ContactSection'; 
 import ErrorPage from './components/ErrorPage';
 import ConditionsUtilisation from './components/ConditionsUtilisation';
 import SignIn from "./components/auth/SignIn";
-import SignUp from "./components/auth/SignUp"
+import SignUp from "./components/auth/SignUp";
 import ResetPassword from "./components/auth/ResetPassword";
 import Privacy from "./components/Privacy";
+import Election from "./components/createElection";
+import OAuthLogin from "./components/auth/OAuthLogin";
 
 const router = createBrowserRouter([
   {
@@ -20,9 +21,19 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <Sign />,
+        element: <LandingPage />,
       },
+
+       {
+        path: "/oauthlogon",
+        element: <OAuthLogin />,
+      },
+
       {
+        path: '/reset-password',
+        element: <ResetPassword />,
+      },
+       {
         path: '/reset-password',
         element: <ResetPassword />,
       },

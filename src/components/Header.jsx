@@ -11,6 +11,10 @@ export default function Header() {
   const location = useLocation();
   const dropdownRef = useRef(null);
 
+  
+  /*** ajout d'une page paersonaliser pour notifier les user n'ayant pas de role admin   */
+
+
   useEffect(() => {
     setMenuOpen(false);
     setAdminDropdownOpen(false);

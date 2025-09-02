@@ -1,15 +1,68 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom'; 
 
 const SignIn = ({ onLogin, isLoading = false, errorMessage = '' }) => {
   const [login, setLogin] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [touched, setTouched] = useState({ email: false, password: false });
   const [errors, setErrors] = useState({ email: '', password: '' });
+  const [isLogin,setIsLogin] = useState(false)
+  const navigate = useNavigate(); 
+  
 
-  const loginWithGoogle = () => {
-    window.location.href = "https://massive-primate-climbing.ngrok-free.app/loginwithgoogle";
+
+   const handleFacebookLogin =()=>{
+         window.location.href = "http://localhost:8081/oauth2/authorization/facebook"
+       
+  }
+
+
+
+  const handleLogin = async (login) => {
+    try {
+      const response = await fetch("http://localhost:8081/api/auth/logintest", {
+        method: "POST",
+        headers: {
+           "Content-Type": "application/json",
+        },
+        body:JSON.stringify({
+          email: login.email,
+          password: login.password,
+        }),
+      });
+      const data = await response.json();
+      localStorage.setItem('token',data.token)
+
+
+      //fetch user details by passing this token in header
+      const resp = await fetch("http://localhost:8081/api/auth/details", 
+        {
+            method: "GET",
+            headers: {
+            "Authorization": "Bearer " + data.token,
+            }  
+        });
+        const respon = await resp.json()
+       
+      if (!response.ok){
+         throw error(response.msg)
+         
+      }
+      setIsLogin(true)
+      console.log(respon)
+         navigate('/');
+
+    }catch (error) {
+        console.error("Error during registry :", error);
+      }
+  
   };
+ 
+
+
+
+
 
   const validateField = (field, value) => {
     let error = '';
@@ -55,7 +108,8 @@ const SignIn = ({ onLogin, isLoading = false, errorMessage = '' }) => {
     const isPasswordValid = validateField('password', login.password);
 
     if (isEmailValid && isPasswordValid) {
-      onLogin(login);
+      // onLogin(login);
+      handleLogin(login)
     }
   };
 
@@ -268,7 +322,7 @@ const SignIn = ({ onLogin, isLoading = false, errorMessage = '' }) => {
         </div>
 
         <GoogleLoginButton 
-          onClick={loginWithGoogle}
+          onClick={handleFacebookLogin}
           isLoading={isLoading}
         />
 

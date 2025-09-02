@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, Edit3, Eye, Share2, BarChart3, Settings, Save, Users, Trophy,Check, Clock,  Vote, Maximize } from 'lucide-react';
+import { Plus, Trash2, Edit3, Eye, Share2, BarChart3, Settings, Save, Users, Trophy,Check, Clock,  Vote, Download, Maximize } from 'lucide-react';
 import './index.css';
-import LiveElection from '../LiveElection';
+import LiveElection from '../liveElection';
 import { useNavigate } from 'react-router-dom'; 
 import { useLocation } from 'react-router-dom';
 
@@ -27,8 +27,20 @@ const Election =  ({listElection = 'create', user={} ,isFromLogin=false}) => {
       const [sortedList,setSortedList] = useState([])
       const [dateError,setDateError]  = useState('')
       const [endElection,setEndElection] = useState(false)
+      const [fileName,setFileName]  = useState(null)
+      const [isAuthorizedFileExtention,setIsAuthorizedFileExtention] = useState(false)
+      const [urlApi,setUrlApi] = useState("")
+      const [loadFileMessage,setLoadFileMessage] = useState({"errorSchema":"","errorsColType":[]})
+      const  [messageToAnalyseFile,setMessageToAnalyseFile] = useState("")
+      const[selectedOption,setSelectedOption] = useState([])
+      const[firstCandidat,setFirstCandidat] = useState({})
+  
+
+      const listOption = ["delete duplicat","date valide","file schema", "file test and validation","miss data"]
 
 
+       console.log("mymessage",user)
+      
 
       const navigate = useNavigate(); 
 
@@ -36,9 +48,23 @@ const Election =  ({listElection = 'create', user={} ,isFromLogin=false}) => {
       const location = useLocation();
       const isFromAdmin = location.state?.isFromLogin || false; 
       const userRoleAdmin = location.state?.userRole || ''; 
+      const userInfoAdmin = location.state?.userInfo || ''; 
       const isUser = isFromLogin && !isFromAdmin ? user.role : userRoleAdmin;
-
+      const infoUser = isFromLogin && !isFromAdmin ? user.email : userInfoAdmin;
       
+      
+
+
+
+      const handleFileChange = (e) => {
+          const file = e.target.files[0];
+          if (file) {
+            console.log("myfile",file.name)
+            setFileName(file);
+          } else {
+            setFileName("No photo selected");
+          }
+      };
 
       const give_election_result = async (election, electionId) => {
           console.log("elleleee",election)
@@ -85,10 +111,17 @@ const Election =  ({listElection = 'create', user={} ,isFromLogin=false}) => {
       };
 
 
+      
+
+       
+
+
+
     // sorted list_voting result
       useEffect(() => {
           if (votingInfo.length > 0) {
             const sorted = [...votingInfo].sort((a, b) => b.vote_count - a.vote_count);
+            setFirstCandidat(sorted[0])
             setSortedList(sorted)
           }
       }, [votingInfo]);
@@ -137,12 +170,7 @@ const Election =  ({listElection = 'create', user={} ,isFromLogin=false}) => {
     */
 
 
-
-
- 
-
-
-
+   
 
     useEffect(() => {
         const getElection = async () => {
@@ -171,6 +199,13 @@ const Election =  ({listElection = 'create', user={} ,isFromLogin=false}) => {
         getElection();
     }, []);
 
+ 
+
+
+
+
+ 
+
     useEffect(() => {
        if (!elections)return;
        const newDate = new Date()
@@ -184,6 +219,12 @@ const Election =  ({listElection = 'create', user={} ,isFromLogin=false}) => {
 
 
     }, [election]);
+
+
+
+
+  
+
 
     useEffect(() => {
             
@@ -265,9 +306,6 @@ const Election =  ({listElection = 'create', user={} ,isFromLogin=false}) => {
     }, [electionId]);
 
 
-
-
-      
 
     const findId = (id) => {
         const election = elections.find(election => election.id === id);
@@ -399,10 +437,116 @@ const Election =  ({listElection = 'create', user={} ,isFromLogin=false}) => {
     };
 
 
+    const getElection = async () => {
+
+        const resp = await fetch(urlApi, {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            });
+
+            if (!resp.ok) {
+              throw new Error(`Erreur HTTP: ${resp.status}`);
+            }
+
+            const data = await resp.json();
+            console.log("election",data)
+
+
+    };
+
+  const deleteElection = async() => {
+
+        try{
+                
+                const response = await fetch(`http://192.168.178.194:8000/election/${electionId}` , {
+                    method: "DELETE",
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+
+                });
+
+                
+
+                if (!response.ok){
+                    alert("error lors de la creation d'election contacter le service")
+                    const errorData = await response.json();
+                    console.error('API Error:', errorData);
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                
+                }
+          
+              }catch(e){
+                  console.log(e)
+              }
+
+  }
+
+    const addFileCandidat =async() => {
+        if (urlApi) return await getElection()
+        if (!['csv', 'json', 'excell'].includes(fileName.name.split('.').pop().toLowerCase())) return setIsAuthorizedFileExtention(true)
+        const formData = new FormData();
+        formData.append("file", fileName);
+        try {
+              const res =  await fetch("http://192.168.178.194:8000/upload",  {
+              method: "POST",         
+              body: formData,
+            });
+
+            if (!res.ok){
+       
+                 const errorJson = await res.json();
+                 throw new Error(`Erreur ${res.status}: ${errorJson.error || "Erreur inconnue"}`);
+
+            }
+            const data = await res.json()
+            console.log("give me my data",data)
+            
+            setLoadFileMessage({...loadFileMessage,errorSchema:data.schema_error,errorsColType:data.error_col_type})
+         
+
+
+
+
+        } catch (err) {
+            console.log(err);
+      }
+
+    };
+
+   
+
+    const handleDownload = async (apiName,fileName) => {
+      try {
+        const response = await fetch(`http://192.168.178.194:8000/elections/${apiName}`);
+        if (!response.ok) throw new Error("Network response was not ok");
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = fileName
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        //
+        window.URL.revokeObjectURL(url);
+      } catch (error) {
+        console.error("Error downloading file:", error);
+      }
+    };
+
+
+
+
+
 
       
-    if (loading) return <div className='m-32'>Chargement des élections...</div>;
-    if (error) return <div className='m-32'>Erreur: {error}</div>;
+    if (loading) return <div>Chargement des élections...</div>;
+    if (error) return <div>Erreur: {error}</div>;
 
     if(isElectionCreate){
       return <ElectionConfirmation election={newElection} backToListElection={backToListElection}/>
@@ -413,7 +557,8 @@ const Election =  ({listElection = 'create', user={} ,isFromLogin=false}) => {
 
       <>
 
-        <FormContainer currentView={currentView} 
+        <FormContainer 
+          currentView={currentView} 
           removeCandidate={removeCandidate}
           setCurrentView={setCurrentView}
           createElection={createElection} 
@@ -439,6 +584,24 @@ const Election =  ({listElection = 'create', user={} ,isFromLogin=false}) => {
           user={user}
           give_election_result={give_election_result}
           endElection={endElection}
+          fileName={fileName}
+          handleFileChange={handleFileChange}
+          addFileCandidat={addFileCandidat}
+          isAuthorizedFileExtention={isAuthorizedFileExtention}
+          setIsAuthorizedFileExtention={setIsAuthorizedFileExtention}
+          setFileName={setFileName}
+          setUrlApi = {setUrlApi}
+          urlApi={urlApi}
+          loadFileMessage={loadFileMessage}
+          setLoadFileMessage={setLoadFileMessage}
+          messageToAnalyseFile={messageToAnalyseFile}
+          setMessageToAnalyseFile={setMessageToAnalyseFile}
+          listOption={listOption}
+          selectedOption={selectedOption}
+          setSelectedOption={setSelectedOption}
+          handleDownload={handleDownload}
+          infoUser={infoUser}
+          firstCandidat={firstCandidat}
 
         />
       </>
@@ -451,7 +614,9 @@ const Election =  ({listElection = 'create', user={} ,isFromLogin=false}) => {
 
 
 
-    const FormContainer = ({newElection,setNewElection,
+    const FormContainer = ({
+                            newElection,
+                            setNewElection,
                             setNewCandidate, 
                             newCandidate,
                             addCandidate,
@@ -464,21 +629,37 @@ const Election =  ({listElection = 'create', user={} ,isFromLogin=false}) => {
                             election,
                             isExist,
                             selectedElection,
-                            setSelectedElection,
-                            votingInfo,
                             sortedList,
                             totalVote,
                             totalVoter,
                             backToHome,
-                            removeCandidate,
                             dateError,
                             isUser,
                             user,
                             give_election_result,
-                            endElection
+                            fileName,
+                            setFileName,
+                            handleFileChange,
+                            addFileCandidat,
+                            isAuthorizedFileExtention,
+                            setIsAuthorizedFileExtention,
+                            setUrlApi,
+                            urlApi,
+                            loadFileMessage,
+                            setLoadFileMessage,
+                            messageToAnalyseFile,
+                            setMessageToAnalyseFile,
+                            listOption,
+                            selectedOption,
+                            setSelectedOption,
+                            handleDownload,
+                            infoUser,
+                            firstCandidat,
+                            
 
                       
-                        }) => {
+    }) => {
+
 
 
     if (currentView === 'create') {
@@ -516,6 +697,17 @@ const Election =  ({listElection = 'create', user={} ,isFromLogin=false}) => {
                     className="form-input"
                   />
                 </div>
+                < MyTestArea 
+                  state={{
+                      value:newElection.description,
+                      setValue: (desc) =>
+                                  setNewElection((prev) => ({
+                                    ...prev,
+                                    description: desc
+                      }))
+                      
+                  }}
+                />
 
                 <div className="form-group">
                   <label>Description</label>
@@ -561,14 +753,32 @@ const Election =  ({listElection = 'create', user={} ,isFromLogin=false}) => {
                   </label>
                 </div>
               </div>
+              
+              <AddCandidatWithFileOrApi 
+                   urlApi={urlApi} 
+                   setUrlApi={setUrlApi} 
+                   handleFileChange={handleFileChange} 
+                   addFileCandidat={addFileCandidat}
+                   isAuthorizedFileExtention={isAuthorizedFileExtention}
+                   setIsAuthorizedFileExtention={setIsAuthorizedFileExtention}
+                   fileName={fileName}
+                   setFileName={setFileName}
+                   loadFileMessage={loadFileMessage}
+                   setLoadFileMessage={setLoadFileMessage}
+                   messageToAnalyseFile={messageToAnalyseFile}
+                   setMessageToAnalyseFile={setMessageToAnalyseFile}
+                   listOption = {listOption}
+                   selectedOption = {selectedOption}
+                   setSelectedOption = {setSelectedOption}
+                   handleDownload= {handleDownload}
+              />
 
-              <div className="candidates-section">
-                <h3>Candidats ({newElection.candidates?.length || 0})</h3>
-                <CandidatsCreated candidats={newElection.candidates}/>
-                <AddCandidatForm newCandidate={newCandidate} setNewCandidate={setNewCandidate} addCandidate={addCandidate}/>
-                
-              </div>
-
+              <CreateNewCandidat 
+                   candidats={newElection.candidates}
+                   newCandidate={newCandidate}
+                   setNewCandidate={setNewCandidate}
+                   addCandidate={addCandidate}
+              />
               <div className="creator-actions">
                 {dateError && <p style={{color:"red"}}>error: {dateError} </p>}
                 <button 
@@ -669,9 +879,11 @@ const Election =  ({listElection = 'create', user={} ,isFromLogin=false}) => {
               <Plus className="icon-sm" /> Créer une élection
             </button>
           </div>
-          {currentView=="vote"&& <LiveElection election={election} userInfo={user}/> }
+          {currentView=="vote"&& <LiveElection election={election} userInfo={infoUser}/> }
           
-          {currentView === "list"&&<div className="elections-grid">
+          {currentView === "list"&&
+          
+                <div className="elections-grid">
 
             {elections.map((election) => (
               <>
@@ -717,7 +929,7 @@ const Election =  ({listElection = 'create', user={} ,isFromLogin=false}) => {
                     <span className="stat-label">Candidats</span>
                   </div>
                   <div className="stat">
-                    <span className="stat-value">3690</span>
+                    <span className="stat-value">{totalVote}</span>
                     <span className="stat-label">Votes</span>
                   </div>
                   <div className="stat">
@@ -729,7 +941,7 @@ const Election =  ({listElection = 'create', user={} ,isFromLogin=false}) => {
                   {election.candidates.length > 0 && (
                     <div className="leader-info">
                       <Users className="leader-icon" />
-                      <span>En tête: Herve</span>
+                      {!firstCandidat? <span>En tête: no vote rigth now</span>:<span>En tête: {firstCandidat.candidat_name}</span>}
                     </div>
                   )}
                 </div>
@@ -782,13 +994,431 @@ const Election =  ({listElection = 'create', user={} ,isFromLogin=false}) => {
 
 
 
+  
 
+
+  const SaveCandidats = ({addFileCandidat,giveStatusSaveFile}) => {
+    const callFunction = () =>{
+           addFileCandidat()
+           giveStatusSaveFile()
+
+    }
+
+    
+
+     return  <button onClick={callFunction} className="save-election-btn">
+                <Save className="icon-sm" /> Add File candidats
+             </button>
+
+  }
+  
+
+
+
+
+  const DownloadFile =  ({handleDownloadFile, apiName, fileName,children}) => {
+      
+       const onClickDownload = async () => {
+          await handleDownloadFile(apiName, fileName);
+       };
+      return <button onClick={onClickDownload} className="save-election-btn">
+                 <Download className="icon-sm" /> {children}
+             </button>
+  }
+  
+  const ChangeFile = ({changeFile}) =>{
+       return <button onClick={changeFile} className="save-election-btn">
+                  change file
+             </button>
+
+  }
+
+  const CloseOrOpen = ({isOpen,setIsOpen,addType}) => {
+
+      
+     return  (
+             <>
+              <div style={{ padding: "10px" ,display:"flex",flexDirection:"row",justifyContent:"space-between",background:"rgb(183 201 230)",borderRadius:"6px"}}
+                   onClick={() => setIsOpen(!isOpen)}
+
+              >
+                {isOpen ? addType + " ❌" :addType + "✅"}
+              </div>
+            </>
+     )
+  }
+
+
+  const AddCandidatWithFileOrApi = ({
+                                     urlApi,
+                                     setUrlApi,
+                                     fileName,
+                                     setFileName,
+                                     loadFileMessage,
+                                     addFileCandidat,
+                                     isAuthorizedFileExtention,
+                                     setIsAuthorizedFileExtention,
+                                     setLoadFileMessage,
+                                     messageToAnalyseFile,
+                                     setMessageToAnalyseFile,
+                                     listOption,
+                                     selectedOption,
+                                     setSelectedOption,
+                                     handleDownload,
+                                    }) => {
+        
+         const [isOpen, setIsOpen] = useState(false);
+          
+         return (
+               <>  
+                   <CloseOrOpen isOpen={isOpen} setIsOpen={setIsOpen} addType="AddCandidatWithFileOrApi"/>
+                   {isOpen&&<div className="candidates-section"> 
+                    
+                        <AddCandidatWithFile 
+                          fileName={fileName} 
+                          setFileName={setFileName}
+                          addFileCandidat={addFileCandidat} 
+                          isAuthorizedFileExtention={isAuthorizedFileExtention}
+                          setIsAuthorizedFileExtention={setIsAuthorizedFileExtention}
+                          loadFileMessage={loadFileMessage}
+                          setLoadFileMessage={setLoadFileMessage}
+                          messageToAnalyseFile={messageToAnalyseFile}
+                          setMessageToAnalyseFile={setMessageToAnalyseFile}
+                          listOption={listOption}
+                          selectedOption={selectedOption}
+                          setSelectedOption={setSelectedOption}
+                          handleDownload={handleDownload}
+  
+                   
+                        />
+                        <AddCandidatWithApi setUrlApi={setUrlApi} urlApi={urlApi}/>
+                        
+                     
+                      </div>
+                   }
+               </>
+
+
+         )
+
+  }
+  
+  const AddCandidatWithApi = ({urlApi,setUrlApi}) => {
+
+      return (
+             <>
+                <div className="form-group">
+                      <label>load data*</label>
+                      <input
+                        type="text"
+                        placeholder="Entrez l'URL de l'API"
+                        value={urlApi}
+                       
+                        onChange={(e) => setUrlApi( e.target.value)}
+                        className="form-input-file"
+                      />
+                </div>
+             </>
+
+      )
+
+
+  }
+
+
+  
+  const AddCandidatWithFile = ({
+                                 fileName,
+                                 setFileName,
+                                 loadFileMessage,
+                                 setLoadFileMessage,
+                                 isAuthorizedFileExtention,
+                                 setIsAuthorizedFileExtention,
+                                 messageToAnalyseFile,
+                                 setMessageToAnalyseFile,
+                                 listOption,
+                                 selectedOption,
+                                 setSelectedOption,
+                                 handleDownload,
+                                 addFileCandidat
+                                }) => {
+
+   
+    const [isYes,setIsYes] = useState(false)
+    const [isFileSaveCorrectly,setIsFileSaveCorrectly] = useState(false)
+    
+
+    
+
+    useEffect(() => {
+      if(fileName){
+        console.log("lennnnn",fileName.name)
+        setIsFileSaveCorrectly(false)
+      }
+    }, [fileName]);
+
+    
+
+
+
+    const handleDownloadFile = async (apiName,fileName) => {
+          console.log("nmssss", apiName ,fileName)
+          try {
+            const response = await fetch(`http://192.168.178.194:8000/${apiName}`);
+            if (!response.ok) throw new Error("Network response was not ok");
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = fileName
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            //
+            window.URL.revokeObjectURL(url);
+          } catch (error) {
+            console.error("Error downloading file:", error);
+          }
+    };
+
+
+    const giveStatusSaveFile = () =>{
+         setIsFileSaveCorrectly(true)
+
+    }
+
+    const changeFile = () => {
+         resetFileState()
+
+    }
+  
+
+    const deleteFile = () =>{
+        setIsAuthorizedFileExtention(false)
+        resetFileState()
+    };
+
+    const resetFileState = () => {
+      setFileName(null);
+      setLoadFileMessage({
+        errorSchema: "",
+        errorsColType: [],
+      });
+};
+
+
+    const handleFileChange = (e) => {
+          const file = e.target.files?.[0];
+          if (file) {
+            setFileName(file);
+            setLoadFileMessage({...loadFileMessage,errorSchema:"",errorsColType:[]})
+          } 
+
+          // Réinitialise la valeur de l’input pour pouvoir recharger le même fichier
+          e.target.value = null;
+    };
+
+    const analyseFile = () =>{
+         setIsYes(true)
+          
+    }
+    const analyseFile1 = () =>{
+         setIsYes(false)
+          
+    }
+
+    return (
+             <>
+                  <div className="form-group">
+                     <div style={{display:"flex",flexDirection:"row",gap:"2px"}}>
+                         <div>
+                              <label>load file*</label>
+                              <input
+                                type="file"
+                                accept=".csv, .json, .xlsx, .xls"
+                                id="fileInput"
+                                style={{ display: "none" }}
+                                onChange={handleFileChange}
+
+                                className="form-input-file"
+                              />
+                              {/* bouton personnalisé pour ouvrir l’explorateur */}
+                              <label htmlFor="fileInput" className="form-input-file custom-upload-button">
+                                Upload a file Accepted formats: CSV,JSON,EXCELL
+                              </label>
+                          </div>
+                          <div>
+                              <DownloadFile handleDownloadFile={handleDownloadFile} apiName="download-format" fileName="expected_format.csv">  
+                                  download expected File Format
+                              </DownloadFile>
+                          </div>
+                      </div>
+                      { fileName && <>
+                               {!isFileSaveCorrectly && <div style={{display:"flex", flexDirection:"column",gap:"4px",height:"180px",backgroundColor:"#e5e7eb",padding:"1rem",borderRadius:"6px"}}>
+                                  <div style={{display:"flex", flexDirection:"row",justifyContent:"space-between",backgroundColor:"#e5e7eb",borderRadius:"6px"}}>
+                                      <p className="file-name">{fileName.name}  <span style={{color:"red"}}>is correct fille you want to insert ?? </span></p>
+                                      <button onClick={deleteFile} className="close-button">×</button>
+                                  </div>
+                                   <div style={{display:"flex", flexDirection:"row",backgroundColor:"#e5e7eb",gap:"3px"}}>
+                                      <ChangeFile changeFile={changeFile}/>
+                                      <SaveCandidats addFileCandidat={addFileCandidat} giveStatusSaveFile={giveStatusSaveFile}/>
+                                    </div>
+
+                                 </div>
+                                
+                               }
+                         </>
+                      }
+
+
+
+                      {isAuthorizedFileExtention&&<p style={{color:"red"}}>this file is not authorized give csv or json or excell file!!</p>}
+                      <p style={{color:"red"}}> {loadFileMessage.errorSchema?loadFileMessage.errorSchema:""}</p>
+                      {isFileSaveCorrectly &&<div>
+                                                          
+                              
+                                                          <p style={{color:"red"}}> {loadFileMessage.errorsColType?"error column typ and to see all error download errors file!!!!!!!!!!":""}</p>
+                                                          <DownloadFile handleDownloadFile={handleDownloadFile} apiName="download-errors" fileName="errors.json"> 
+                                                              download errors file
+                                                          </DownloadFile>
+                                                          <p style={{color:"green"}}>do you want that we anlyse your file with correct schema ? <span onClick={analyseFile}>YES</span> <span onClick={analyseFile1}>NO</span> </p>
+
+                                                          {isYes?
+                                                            
+                                                              <div>   
+                                                                  <h2>Choose our file validation service :</h2>
+                                                                  {listOption.map((item)=> (
+                                                                    <MycheckBox state={{
+                                                                            selected:selectedOption,
+                                                                            setSelected:setSelectedOption
+                                                                            }}
+
+                                                                            value={item}
+                                                                    />
+                                                                  )
+                                                                    
+                                                                  )}
+
+                                                                  <MyTestArea 
+                                                                    state = {{
+                                                                            value: messageToAnalyseFile,
+                                                                            setValue: setMessageToAnalyseFile
+
+                                                                    }}
+                                                                    text="describe how i can validate your file..."
+                                                                  />
+                                                                
+                                                                
+                                                              </div>
+                                                            : ""}  
+                                                     </div>
+                      
+                      
+                      }
+                      {loadFileMessage.errorsRow&& <p style={{color:"red"}}> {loadFileMessage.errorsRow}</p> }   
+                      
+                  </div>  
+             
+             </>
+
+
+    )
+
+
+  }
+
+  const MyTestArea = ({state,text}) => {
+   
+    const {value,setValue} = state 
+
+    const handleChange = (e) => {
+          const message = e.target.value;
+          if (message){
+            setValue(message)
+
+          }
+
+     }
+     return (
+          <>
+               <div className="form-group">
+                  <label>Description</label>
+                  <textarea
+                    value={value}
+                    onChange={handleChange}
+                    placeholder={text}
+                    className="form-textarea"
+                    rows={3}
+                  />
+                </div>
+            
+          
+          </>
+
+     )
+
+  }
+
+
+  const MycheckBox = ({state ,value}) =>{
+         const {selected,setSelected} = state
+
+         const handleToggle = (option) => {
+             
+              setSelected((prev) =>
+                   prev.includes(option)
+                   ? prev.filter((item) => item !== option)
+                   : [...prev,option]    
+
+              );
+               
+
+         }
+
+         return (
+                  <div>
+                     
+                      
+                      <label>
+                        <input
+                          type="checkbox"
+                          checked={selected.includes(value)}
+                          onChange={() => handleToggle(value)}
+                        />
+                        {value}
+                      </label>
+                      <br />
+                  </div>
+
+         )
+
+  }
+
+
+  const CreateNewCandidat = ({candidats,newCandidate,setNewCandidate, addCandidate}) => {
+     const [isOpen,setIsOpen] = useState(false)
+
+     return(
+            <>
+              <CloseOrOpen isOpen={isOpen} setIsOpen={setIsOpen} addType="AddCandodatWithForm"/>
+              {isOpen&&<div className="candidates-section">
+                  <h3>Candidats ({candidats?.length || 0})</h3>
+                  <CandidatsCreated candidats={candidats}/>
+                  <AddCandidatForm newCandidate={newCandidate} setNewCandidate={setNewCandidate} addCandidate={addCandidate}/>
+                
+                </div>
+              } 
+            </>
+    
+          )
+  }
 
 
    const AddCandidatForm = ({newCandidate,setNewCandidate,addCandidate}) => {
       return (
         <>
-        
           <div className="add-candidate-form">
                   <h4>Ajouter un candidat</h4>
                   
@@ -820,6 +1450,9 @@ const Election =  ({listElection = 'create', user={} ,isFromLogin=false}) => {
                       <input
                         type="file"
                         accept="image/*"
+                        id="fileInput"
+                        style={{ display: "none" }}
+
                         onChange={(e) => {
                           const file = e.target.files[0];
                           const updated = { ...newCandidate, photo: file };
@@ -827,6 +1460,22 @@ const Election =  ({listElection = 'create', user={} ,isFromLogin=false}) => {
                         }}
                         className="form-input-file"
                       />
+                      {/* bouton personnalisé pour ouvrir l’explorateur */}
+                      <label htmlFor="fileInput" className="form-input-file custom-upload-button">
+                        📷 Upload a photo Accepted formats: JPG, PNG, GIF
+                      </label>
+
+                      {/* nom du fichier ou placeholder personnalisé */}
+                       <p className="file-name">{newCandidate.photo ? newCandidate.photo.name : "No file selected"}</p>
+
+                            {/* Aperçu de l’image */}
+                        {newCandidate.photo && (
+                          <img
+                            src={URL.createObjectURL(newCandidate.photo)}
+                            alt="Preview"
+                            style={{ width: 200, height: 200, objectFit: "cover", marginTop: 10 }}
+                          />
+                        )}
                     </div>
                   
                   </div>

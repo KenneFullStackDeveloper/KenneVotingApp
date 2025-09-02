@@ -3,35 +3,84 @@ import { Link } from 'react-router-dom';
 import { FaVoteYea } from 'react-icons/fa'; 
 import { Eye, EyeOff, AlertCircle, CheckCircle, Shield, Vote, UserCheck, X, Check } from 'lucide-react';
 
-const SignUp = ({ onRegister, existAccount, isLoading = false }) => {
+const SignUp = ({ onRegister, existAccount }) => {
   const [form, setForm] = useState({ 
     name: '', 
     email: '', 
     password: '', 
-    state: '' 
+    state: '' ,
+    electionName:''
   });
   
   const [errors, setErrors] = useState({
     name: '',
     email: '',
     password: '',
-    state: ''
+    state: '',
+    electionName: ''
   });
   
   const [touched, setTouched] = useState({
     name: false,
     email: false,
     password: false,
-    state: false
+    state: false,
+    electionName:false
   });
   
   const [showPassword, setShowPassword] = useState(false);
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [serverError, setServerError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [isLoading ,setIsLoading] = useState(false)
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const passwordMinLength = 8;
+   
+
+  
+   
+
+   const handleRegister = async (form) => {
+    try {
+              const response = await fetch("http://localhost:8081/registration", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  name: form.name,
+                  email: form.email,
+                  password: form.password,
+                  state: form.state,
+                  electionName: form.electionName,
+                  roles: 'user'
+                }),
+              });
+
+                if (!response.ok){
+                    alert("error lors de la creation d'election contacter le service")
+                    const errorData = await response.json();
+                    console.error('API Error:', errorData);
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                
+                }
+
+              const result = await response.json();
+              setIsLoading(true)
+              setTimeout(() => {
+                 // remet le button au status initial
+                 setIsLoading(false)
+              },1000) 
+              
+             
+              return result
+
+        } catch (error) {
+              console.error("Error during registry :", error);
+         
+          }
+  };
 
   const handleBlur = (field) => {
     setTouched({ ...touched, [field]: true });
@@ -61,6 +110,10 @@ const SignUp = ({ onRegister, existAccount, isLoading = false }) => {
       case 'state':
         if (!value.trim()) error = 'La région est requise';
         else if (value.trim().length < 2) error = 'Veuillez entrer une région valide';
+        break;
+      case 'elctionName':
+        if (!value.trim()) error = 'Le nom est requis';
+        else if (value.trim().length < 2) error = 'Le nom doit contenir au moins 2 caractères';
         break;
       default:
         break;
@@ -94,11 +147,14 @@ const SignUp = ({ onRegister, existAccount, isLoading = false }) => {
     const isEmailValid = validateField('email', form.email);
     const isPasswordValid = validateField('password', form.password);
     const isStateValid = validateField('state', form.state);
+    const isElectionNameValid = validateField('state', form.electionName);
 
-    if (isNameValid && isEmailValid && isPasswordValid && isStateValid) {
+    if (isNameValid && isEmailValid && isPasswordValid && isStateValid &&isElectionNameValid) {
       try {
-        // Appel de la fonction onRegister qui devrait retourner une promesse
-        const result = await onRegister(form);
+        // Appel de la fonction handleRegister qui save les info du user dans la db et  devrait retourner une promesse
+        //const result = await onRegister(form);
+        console.log("mypassform",form["password"])
+        const result = await handleRegister(form)
         
         // Si l'inscription réussit
         if (result && result.success) {
@@ -289,6 +345,32 @@ const SignUp = ({ onRegister, existAccount, isLoading = false }) => {
               <p className="mt-1 text-sm text-red-600 flex items-center">
                 <AlertCircle className="h-4 w-4 mr-1" />
                 {errors.state}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label htmlFor="state" className="block text-sm font-medium text-gray-700 mb-1">
+              electionName <span className="text-red-500">*</span>
+            </label>
+            <div className="relative">
+              <input
+                id="state"
+                className={getInputClass('electionName')}
+                placeholder="vote president de la cooperative"
+                value={form.electionName}
+                onChange={(e) => handleChange('electionName', e.target.value)}
+                onBlur={() => handleBlur('electionName')}
+                disabled={isLoading}
+              />
+              {((touched.electionName || submitAttempted) && !errors.electionName) && (
+                <CheckCircle className="h-5 w-5 text-green-500 absolute right-3 top-3.5" />
+              )}
+            </div>
+            {((touched.electionName || submitAttempted) && errors.electionName) && (
+              <p className="mt-1 text-sm text-red-600 flex items-center">
+                <AlertCircle className="h-4 w-4 mr-1" />
+                {errors.electionName}
               </p>
             )}
           </div>
