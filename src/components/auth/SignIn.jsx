@@ -13,7 +13,9 @@ const SignIn = ({ onLogin, isLoading = false, errorMessage = '' }) => {
 
 
    const handleFacebookLogin =()=>{
-         window.location.href = "http://localhost:8081/oauth2/authorization/facebook"
+        // window.location.href = "http://localhost:8081/oauth2/authorization/facebook"
+         window.location.href = "http://192.168.178.194:8081/oauth2/authorization/facebook"
+       
        
   }
 
@@ -21,7 +23,7 @@ const SignIn = ({ onLogin, isLoading = false, errorMessage = '' }) => {
 
   const handleLogin = async (login) => {
     try {
-      const response = await fetch("http://localhost:8081/api/auth/logintest", {
+      const response = await fetch("http://192.168.178.194:8081/api/auth/logintest", {
         method: "POST",
         headers: {
            "Content-Type": "application/json",
@@ -36,7 +38,7 @@ const SignIn = ({ onLogin, isLoading = false, errorMessage = '' }) => {
 
 
       //fetch user details by passing this token in header
-      const resp = await fetch("http://localhost:8081/api/auth/details", 
+      const resp = await fetch("http://192.168.178.194:8081/api/auth/details", 
         {
             method: "GET",
             headers: {
