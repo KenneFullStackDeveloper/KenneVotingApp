@@ -340,11 +340,11 @@ const SignIn = ({ onLogin, isLoading = false, errorMessage = '' }) => {
 
         <div className="border-t border-gray-200 pt-4 mt-4">
           <p className="text-xs text-gray-500 text-center">
-            En vous connectant, vous acceptez nos{' '}
+            En cliquant sur «Se connecter» ci-dessus, vous acceptez nos{' '}
             <Link to="/terms" className="text-blue-500 hover:text-blue-700 hover:underline font-medium">
               Conditions d'utilisation
             </Link>{' '}
-            et notre{' '}
+            et reconnaissez avoir lu notre{' '}
             <Link to="/privacy" className="text-blue-500 hover:text-blue-700 hover:underline font-medium">
               Politique de confidentialité
             </Link>.
