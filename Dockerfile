@@ -16,7 +16,9 @@ COPY . .
 
 ENV CHOKIDAR_USEPOLLING=true
 
-RUN npm run build
+RUN VITE_BACKEND_URL=$VITE_BACKEND_URL \
+    npm run build
+
 
 # stage 2 - Serve
 
