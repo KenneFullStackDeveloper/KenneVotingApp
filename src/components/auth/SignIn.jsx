@@ -35,6 +35,7 @@ const SignIn = ({ onLogin, isLoading = false, errorMessage = '' }) => {
       });
       const data = await response.json();
       localStorage.setItem('token',data.token)
+      console.log("url backeng....",backendUrl)
 
 
       //fetch user details by passing this token in header http://192.168.178.194:8081
