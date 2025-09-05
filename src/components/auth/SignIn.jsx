@@ -10,11 +10,11 @@ const SignIn = ({ onLogin, isLoading = false, errorMessage = '' }) => {
   const [isLogin,setIsLogin] = useState(false)
   const navigate = useNavigate(); 
   
-
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
    const handleFacebookLogin =()=>{
         // window.location.href = "http://localhost:8081/oauth2/authorization/facebook"
-         window.location.href = "http://192.168.178.194:8081/oauth2/authorization/facebook"
+         window.location.href = "`${backendUrl}/oauth2/authorization/facebook`"
        
        
   }
@@ -23,7 +23,7 @@ const SignIn = ({ onLogin, isLoading = false, errorMessage = '' }) => {
 
   const handleLogin = async (login) => {
     try {
-      const response = await fetch("http://192.168.178.194:8081/api/auth/logintest", {
+      const response = await fetch(`${backendUrl}/api/auth/logintest`, {
         method: "POST",
         headers: {
            "Content-Type": "application/json",
@@ -37,8 +37,8 @@ const SignIn = ({ onLogin, isLoading = false, errorMessage = '' }) => {
       localStorage.setItem('token',data.token)
 
 
-      //fetch user details by passing this token in header
-      const resp = await fetch("http://192.168.178.194:8081/api/auth/details", 
+      //fetch user details by passing this token in header http://192.168.178.194:8081
+      const resp = await fetch(`${backendUrl}/api/auth/details`, 
         {
             method: "GET",
             headers: {

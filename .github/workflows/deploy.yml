@@ -30,7 +30,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: kennetchofo/kennetchofovoting-frontend:latest
+          tags: kennetchofo/kennetchofovoting-frontend:${{ github.sha }}
 
       - name: Docker Image Test
         run: |
@@ -38,9 +38,9 @@ jobs:
           docker images
 
           echo "🚀 Lancement du container pour test"
-          docker run -d --name votingApp kennetchofo/kennetchofovoting-frontend:latest
+          docker run -d --name votingApp kennetchofo/kennetchofovoting-frontend:${{ github.sha }}
 
-          echo "📄 Logs du container ${{ github.sha }} :"
+          echo "📄 Logs du container :"
           docker logs votingApp
 
           echo "🧹 Nettoyage du container"
