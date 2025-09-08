@@ -29,8 +29,12 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          push: true
+          push: false
           tags: kennetchofo/kennetchofovoting-frontend:${{ github.sha }}
+          build-args: |
+            DATABASE_URL=${{ vars.DATABASE_URL }}
+            SECRET_KEY=${{  secrets.SECRET_KEY }}
+            FRONTEND_URL=${vars.FRONTEND_URL}
 
       - name: Docker Image Test
         run: |
