@@ -31,6 +31,10 @@ jobs:
           context: .
           push: true
           tags: kennetchofo/kennetchofovoting-frontend:${{ github.sha }}
+          build-args: |
+            DATABASE_URL=${{ vars.DATABASE_URL }}
+            SECRET_KEY=${{ secrets.SECRET_KEY }}
+            FRONTEND_URL=${{ vars.FRONTEND_URL }}
 
       - name: Docker Image Test
         run: |
