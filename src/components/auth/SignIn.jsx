@@ -23,7 +23,7 @@ const SignIn = ({ onLogin, isLoading = false, errorMessage = '' }) => {
 
   const handleLogin = async (login) => {
     try {
-      const response = await fetch("https://6a342b5a5710.ngrok-free.app /api/auth/logintest", {
+      const response = await fetch("https://cee36d5562dd.ngrok-free.app/api/auth/logintest", {
         method: "POST",
         headers: {
            "Content-Type": "application/json",
@@ -48,7 +48,7 @@ const SignIn = ({ onLogin, isLoading = false, errorMessage = '' }) => {
        else{}
       
         //fetch user details by passing this token in header http://192.168.178.194:8081
-        const resp = await fetch("https://6a342b5a5710.ngrok-free.app/api/auth/details", 
+        const resp = await fetch("https://cee36d5562dd.ngrok-free.app/api/auth/details", 
           {
               method: "GET",
               headers: {

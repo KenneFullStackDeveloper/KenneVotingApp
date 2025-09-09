@@ -43,7 +43,7 @@ const SignUp = ({ onRegister, existAccount }) => {
 
    const handleRegister = async (form) => {
     try {
-              const response = await fetch("https://e7051f5f50c8.ngrok-free.app/registration", {
+              const response = await fetch("https://cee36d5562dd.ngrok-free.app/registration", {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
