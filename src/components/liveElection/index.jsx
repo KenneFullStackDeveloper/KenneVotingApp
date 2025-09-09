@@ -43,7 +43,7 @@ const LiveElection = ({ election,userInfo }) => {
       console.log("myuserrr",userInfo)
         
         try{  
-            const response = await fetch("http://192.168.178.194:8000/VoteElection/", {          
+            const response = await fetch("http://192.168.178.29:8000/VoteElection/", {          
                   method: "POST",
                   headers: {
                     "Content-Type": "application/json",

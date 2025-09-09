@@ -69,7 +69,7 @@ const Election =  ({listElection = 'create', user={} ,isFromLogin=false}) => {
       const give_election_result = async (election, electionId) => {
           console.log("elleleee",election)
           try {
-            const res = await fetch(`http://192.168.178.194:8000/resultvote/${electionId}`); 
+            const res = await fetch(`http://192.168.178.29:8000/resultvote/${electionId}`); 
 
             if (!res.ok) {
               throw new Error(`HTTP error! status: ${res.status}`);
@@ -170,13 +170,13 @@ const Election =  ({listElection = 'create', user={} ,isFromLogin=false}) => {
     */
 
 
-   
+   /** 
 
     useEffect(() => {
         const getElection = async () => {
           try {
             setLoading(true);
-            const resp = await fetch("http://192.168.178.194:8000/election/candidat", {
+            const resp = await fetch("http://192.168.178.29:8000/election/candidat", {
               method: "GET",
               headers: {
                 "Content-Type": "application/json",
@@ -199,7 +199,7 @@ const Election =  ({listElection = 'create', user={} ,isFromLogin=false}) => {
         getElection();
     }, []);
 
- 
+ */
 
 
 
@@ -231,7 +231,7 @@ const Election =  ({listElection = 'create', user={} ,isFromLogin=false}) => {
         const deleteElection = async () => {
             try{
                 if (deleteId !== null){
-                    const response = await fetch(`http://192.168.178.194:8000/election/${electionId}` , {
+                    const response = await fetch(`http://192.168.178.29:8000/election/${electionId}` , {
                     method: "DELETE",
                     headers: {
                       "Content-Type": "application/json",
@@ -276,7 +276,7 @@ const Election =  ({listElection = 'create', user={} ,isFromLogin=false}) => {
                               formData.append("party", candidat.party);
                               formData.append("photo", candidat.photo);
 
-                              const response = await fetch(`http://192.168.178.194:8000/elections/${electionId}/candidates`, {
+                              const response = await fetch(`http://192.168.178.29:8000/elections/${electionId}/candidates`, {
                                 method: "POST",
                             
                                 body: formData,
@@ -360,7 +360,7 @@ const Election =  ({listElection = 'create', user={} ,isFromLogin=false}) => {
         const endDate = buildDateWithTime(newElection.endDate, 14, 59, 0);
         try{
 
-            const response = await fetch("http://192.168.178.194:8000/elections" , {
+            const response = await fetch("http://192.168.178.29:8000/elections" , {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -460,7 +460,7 @@ const Election =  ({listElection = 'create', user={} ,isFromLogin=false}) => {
 
         try{
                 
-                const response = await fetch(`http://192.168.178.194:8000/election/${electionId}` , {
+                const response = await fetch(`http://192.168.178.29:8000/election/${electionId}` , {
                     method: "DELETE",
                     headers: {
                       "Content-Type": "application/json",
@@ -490,7 +490,7 @@ const Election =  ({listElection = 'create', user={} ,isFromLogin=false}) => {
         const formData = new FormData();
         formData.append("file", fileName);
         try {
-              const res =  await fetch("http://192.168.178.194:8000/upload",  {
+              const res =  await fetch("http://192.168.178.29:8000/upload",  {
               method: "POST",         
               body: formData,
             });
@@ -519,8 +519,9 @@ const Election =  ({listElection = 'create', user={} ,isFromLogin=false}) => {
    
 
     const handleDownload = async (apiName,fileName) => {
+      
       try {
-        const response = await fetch(`http://192.168.178.194:8000/elections/${apiName}`);
+        const response = await fetch(`http://192.168.178.29:8000/elections/${apiName}`);
         if (!response.ok) throw new Error("Network response was not ok");
 
         const blob = await response.blob();

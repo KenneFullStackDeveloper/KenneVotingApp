@@ -23,7 +23,7 @@ const SignIn = ({ onLogin, isLoading = false, errorMessage = '' }) => {
 
   const handleLogin = async (login) => {
     try {
-      const response = await fetch("http://localhost:8081/api/auth/logintest", {
+      const response = await fetch("https://6a342b5a5710.ngrok-free.app /api/auth/logintest", {
         method: "POST",
         headers: {
            "Content-Type": "application/json",
@@ -35,26 +35,42 @@ const SignIn = ({ onLogin, isLoading = false, errorMessage = '' }) => {
       });
       const data = await response.json();
       localStorage.setItem('token',data.token)
-      console.log("url backeng....",backendUrl)
+      console.log("url backeng....",data.token)
 
-
-      //fetch user details by passing this token in header http://192.168.178.194:8081
-      const resp = await fetch("http://localhost:8081/api/auth/details", 
-        {
-            method: "GET",
-            headers: {
-            "Authorization": "Bearer " + data.token,
-            }  
-        });
-        const respon = await resp.json()
-       
-      if (!response.ok){
-         throw error(response.msg)
-         
-      }
-      setIsLogin(true)
-      console.log(respon)
+    
+      if (data?.token) {
+         setIsLogin(true)
+    
          navigate('/');
+   
+      }
+
+       else{}
+      
+        //fetch user details by passing this token in header http://192.168.178.194:8081
+        const resp = await fetch("https://6a342b5a5710.ngrok-free.app/api/auth/details", 
+          {
+              method: "GET",
+              headers: {
+              "Authorization": `Bearer ${data.token}`,
+              }  
+          });
+
+        // Loggue les infos importantes AVANT de parser en JSON
+        const contentType = resp.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+            const json = await resp.json();
+            console.log("Données user :", json);
+        } else {
+          const text = await resp.text();
+          console.error("Réponse non JSON :", text);
+        }
+
+        const respon = await resp.json()
+        
+        setIsLogin(true)
+        console.log(respon)
+          navigate('/');
 
     }catch (error) {
         console.error("Error during registry :", error);
